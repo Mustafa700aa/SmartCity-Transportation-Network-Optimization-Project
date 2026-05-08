@@ -1,0 +1,30 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# Cairo Smart City Transportation Network — Docker Compose (Development)
+# ══════════════════════════════════════════════════════════════════════════════
+# Usage:
+#   docker-compose up --build        # Build and start
+#   docker-compose up -d             # Detached mode
+#   docker-compose down              # Stop and remove containers
+# ══════════════════════════════════════════════════════════════════════════════
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: smartcity-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source code for hot-reload during development
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    restart: unless-stopped

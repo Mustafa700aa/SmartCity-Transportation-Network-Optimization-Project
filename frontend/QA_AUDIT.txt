@@ -1,0 +1,43 @@
+# ══════════════════════════════════════════════════════════════════════════════
+# CAIRO SMART CITY FRONTEND — FULL QA AUDIT REPORT
+# ══════════════════════════════════════════════════════════════════════════════
+
+AUDIT FINDINGS SUMMARY
+======================
+
+ITEM | REQUIREMENT | STATUS | NOTE
+-----|-------------|--------|------
+1.1  | React-Leaflet centered on Cairo [30.0444, 31.2357] | ✅ PASS | TransportationMap.jsx:41
+1.2  | All 25 nodes fetched from /api/graph & rendered as clickable markers | ✅ PASS | App.jsx:65-71, Map:107-128
+1.3  | Tab switch clears previous map layers | ✅ PASS | clearSiblings() App.jsx:75-79 BUT BUG: only called on ACTION not on TAB SWITCH — see FIX-1
+
+2.1  | Origin, Destination, Time-of-Day inputs | ✅ PASS | App.jsx:174-226
+2.2  | Emergency Preemption toggle (A*) | ⚠️ PARTIAL | A* exists as a separate button, but no dedicated "Emergency Preemption" TOGGLE SWITCH UI per spec — see FIX-2
+2.3  | Animated dashed blue polyline for route | ✅ PASS | Map:144-147 (dashArray: '8 14')
+
+3.1  | MST button calls /api/mst | ✅ PASS | App.jsx:95-101
+3.2  | MST roads in bright GREEN on map | ❌ FAIL | MST roads are rendered ORANGE (#f97316), NOT GREEN — see FIX-3
+
+4.1  | Number input for Max Budget | ✅ PASS | App.jsx:347-359
+4.2  | API sends budget correctly | ✅ PASS | api.js:52-60
+4.3  | Amber (condition>=5) / Red (condition<5) roads | ✅ PASS | Map:177-179
+4.4  | Thick stroke + glow visual weight | ✅ PASS | Map:184-214 (weight:14 glow + weight:6 main)
+4.5  | Informative popups (condition, cost, benefit) | ✅ PASS | Map:193-208
+4.6  | Road ID parsing for coordinates | ⚠️ BUG | Map:172 splits by '-' — roads like "F9-3" have IDs "F9" and "3" which works, but "F10-1" splits into ["F10","1"] ✅ safe. "13-4" → ["13","4"] ✅. Actually PASS for all known road IDs.
+
+5.1  | try/catch on backend failure | ✅ PASS | App.jsx:91, 98, 109
+5.2  | Error toast/notification | ✅ PASS | App.jsx:512-518 (red toast with dismiss)
+5.3  | "No route" UI when found=False | ✅ PASS | App.jsx:274-282 (red card with XCircle)
+
+ISSUES TO FIX:
+--------------
+FIX-1 (CRITICAL): Tab switch does NOT clear map layers. clearSiblings() is only
+       called inside action handlers. Switching the tab itself leaves stale polylines.
+       SOLUTION: Add useEffect that fires clearSiblings on activeTab change.
+
+FIX-2 (MINOR): The spec calls for a distinct "Emergency Preemption" toggle.
+       Currently A* is just a second button. Add a labeled toggle switch that
+       selects between Dijkstra and A* mode visually.
+
+FIX-3 (CRITICAL): MST polylines use orange color (#f97316), not the spec-required
+       bright green. Change to emerald green (#10b981) with a brighter stroke.

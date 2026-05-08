@@ -1,0 +1,42 @@
+# Version control
+.git
+.gitignore
+
+# Python caches
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+dist/
+build/
+
+# Virtual environments
+.venv
+venv
+env
+
+# IDE / Editor
+.vscode
+.idea
+*.swp
+*.swo
+
+# Environment secrets
+.env
+.env.*
+
+# Docker (prevent recursive copy)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# ML model artifacts (rebuilt inside container if needed)
+src/ml/models/*.pkl
+
+# Misc
+*.log
+*.tmp
